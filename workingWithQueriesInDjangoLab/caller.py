@@ -1,5 +1,6 @@
 import os
 import django
+from django.db.models import QuerySet
 
 # Set up Django
 os.environ.setdefault("DJANGO_SETTINGS_MODULE", "orm_skeleton.settings")
@@ -59,3 +60,33 @@ def add_records_to_database():
 
 # Run and print your queries
 # print(add_records_to_database())
+
+def find_books_by_genre_and_language(genre: str, language:str):
+    return Book.objects.filter(genre=genre, language=language)
+
+def find_authors_nationalities() -> str:
+    return '\n'.join(f"{a.first_name} {a.last_name} is {a.nationality}" for a in Author.objects.all().exclude(nationality__isnull=True))
+
+def order_books_by_year() -> str:
+    books = Book.objects.all().order_by("publication_year", "title")
+
+    return '\n'.join(f"{b.publication_year} year: {b.title} by {b.author}" for b in books)
+
+def delete_review_by_id(some_id) -> str:
+    r = Review.objects.get(id = some_id)
+    r.delete()
+    return f"Review by {r.reviewer_name} was deleted"
+
+def filter_authors_by_nationalities(some_nationality) -> str:
+    authors = Author.objects.filter(nationality=some_nationality).order_by("first_name", "last_name")
+
+    return '\n'.join(f"{a.biography}" if a.biography else f"{a.first_name} {a.last_name}" for a in authors)
+
+def filter_authors_by_birth_year(year1, year2) -> str:
+    authors = Author.objects.filter(birth_date__year__gte=year1, birth_date__year__lte=year2).order_by("-birth_date")
+
+    return '\n'.join(f"{a.birth_date}: {a.first_name} {a.last_name}" for a in authors)
+
+def change_reviewer_name(r_name, new_name) -> QuerySet:
+    Review.objects.filter(reviewer_name=r_name).update(reviewer_name = new_name)
+    return Review.objects.all()
