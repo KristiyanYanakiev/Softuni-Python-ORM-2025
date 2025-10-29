@@ -78,3 +78,4 @@ class Laptop(models.Model):
     storage = models.PositiveIntegerField(help_text='Storage in GB')
     operation_system = models.CharField(max_length=100, choices=LaptopOperationSystemChoices)
     price = models.DecimalField(max_digits=10, decimal_places=2)
+
