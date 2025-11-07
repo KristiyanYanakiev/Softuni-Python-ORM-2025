@@ -1,6 +1,9 @@
 from django.core.validators import MinLengthValidator, MaxLengthValidator, MinValueValidator, MaxValueValidator
 from django.db import models
 
+from validators import validate_menu_categories
+
+
 # Create your models here.
 class Restaurant(models.Model):
     name = models.CharField(
@@ -24,4 +27,64 @@ class Restaurant(models.Model):
                                      MinValueValidator(0.00, message='Rating must be at least 0.00.'),
                                      MaxValueValidator(5.00, message='Rating cannot exceed 5.00.')
                                  ])
+
+class Menu(models.Model):
+       name = models.CharField(max_length=100)
+       description = models.TextField(
+           validators=[validate_menu_categories]
+       )
+       restaurant = models.ForeignKey(to=Restaurant, on_delete=models.CASCADE)
+
+
+class ReviewMixin(models.Model):
+    review_content = models.TextField()
+    rating = models.PositiveIntegerField(validators=[MaxValueValidator(5)])
+
+    class Meta:
+        abstract = True
+
+
+
+
+class RestaurantReview(ReviewMixin):
+    reviewer_name = models.CharField(max_length=100)
+    restaurant = models.ForeignKey(to=Restaurant, on_delete=models.CASCADE)
+
+
+    class Meta:
+        abstract = True
+        unique_together = ('reviewer_name', 'restaurant')
+        verbose_name = 'Restaurant Review'
+        verbose_name_plural = 'Restaurant Reviews'
+
+
+class RegularRestaurantReview(RestaurantReview):
+    pass
+
+
+
+class FoodCriticRestaurantReview(RestaurantReview):
+    food_critic_cuisine_area = models.CharField(max_length=100)
+
+
+    class Meta(RestaurantReview.Meta):
+        verbose_name = 'Food Critic Review'
+        verbose_name_plural = 'Food Critic Reviews'
+        ordering = ['-rating']
+
+
+class MenuReview(ReviewMixin):
+    reviewer_name = models.CharField(max_length=100)
+    menu = models.ForeignKey(to=Menu, on_delete=models.CASCADE)
+
+
+    class Meta:
+        verbose_name = 'Menu Review'
+        verbose_name_plural = 'Menu Reviews'
+        unique_together = ('reviewer_name', 'menu')
+        indexes = [models.Index(
+            fields=['menu'], name='main_app_menu_review_menu_id'
+        )]
+        ordering = ['-rating']
+
 
