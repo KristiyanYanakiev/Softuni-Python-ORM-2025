@@ -1,0 +1,31 @@
+{% extends 'common/base.html' %}
+{% block content %}
+    {% if fruits %}
+        {% for fruit in fruits %}
+            <h2>Fruits</h2>
+                <section id="dashboard">
+                    <!-- Display a div "fruit" with information about each post (if any)-->
+
+                    <!-- first fruit -->
+                    <div class="fruit">
+                        <!-- fruit image -->
+                        <img src="{{fruit.Image_url}}" alt="example1"/>
+                        <!-- fruit name -->
+                        <h3 class="title">{{ fruit.name }}</h3>
+                        <!-- fruit description -->
+                        <p class="description">{{ fruit.description }}</p>
+                        <!-- fruit details button -->
+                        <a class="details-btn" href="#">More Info</a>
+                    </div>
+
+
+                </section>
+        {% endfor %}
+    {% else %}
+
+        <!-- Display a heading if there are no posts -->
+        <h2>No fruit info yet.</h2>
+    {% endif %}
+{% endblock %}
+
+
